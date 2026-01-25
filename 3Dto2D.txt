@@ -1,0 +1,31 @@
+# 3D 모델(.glft)
+
+.glft 모델 내 아래와 같이 연동되어 있음
+	"images":[
+		{
+			"mimeType":"image/jpeg",
+			"name":"Lamborginhi Aventador_diffuse",
+			"uri":"Lamborginhi%20Aventador_diffuse.jpg"
+		},
+		{
+			"mimeType":"image/png",
+			"name":"Lamborginhi Aventador_spec",
+			"uri":"Lamborginhi%20Aventador_spec.png"
+		}
+	],
+.bin 과 아래와 같이 연동되어 있음
+	"buffers":[
+		{
+			"byteLength":858536,
+			"uri":"car.bin"
+		}
+	]
+
+
+
+# 2D 이미지
+
+배경 이미지 : /static/models/Lamborginhi Aventador_diffuse_origin.jpg
+
+
+결과 이미지 : /static/models/Lamborginhi Aventador_diffuse.jpg
