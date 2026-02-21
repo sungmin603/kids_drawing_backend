@@ -1,0 +1,10 @@
+{
+  "model": "Lamborghini_Aventador.glb",
+  "axis": "front",
+  "image_size": 512,
+  "symmetry_axis": "xy",
+  "coverage_px": 80678,
+  "projection_image": "Lamborghini_Aventador_projection_front.png",
+  "uvmap_image": "Lamborghini_Aventador_uvmap_front.png",
+  "uv_mirror_pairs": []
+}

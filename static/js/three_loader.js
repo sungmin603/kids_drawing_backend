@@ -111,13 +111,16 @@ export default function initThree(texturePath) {
     toggleBtn.textContent = rotate ? 'Rotate ON' : 'Rotate OFF';
   });
 
-  // Zoom 버튼 생성 (+, -)
+  // Zoom 버튼 생성 (+, -) – 재호출 시 중복 방지
+  container.parentElement.querySelectorAll('.zoom-wrapper').forEach(el => el.remove());
   const zoomWrapper = document.createElement('div');
+  zoomWrapper.className = 'zoom-wrapper';
   zoomWrapper.style.position = 'absolute';
-  zoomWrapper.style.top = '10px';       // 상단으로 위치
-  zoomWrapper.style.left = '10px';      // 좌측으로 위치
+  zoomWrapper.style.top = '10px';
+  zoomWrapper.style.left = '10px';
   zoomWrapper.style.display = 'flex';
   zoomWrapper.style.gap = '5px';
+  zoomWrapper.style.zIndex = '10';
   container.parentElement.appendChild(zoomWrapper);
 
   ['+', '-'].forEach(sym => {

@@ -2,70 +2,247 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>3D Painting Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>어린이 색칠 놀이 🎨</title>
   <style>
+    /* ── 기본 ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #f0f0f0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 10px;
+      padding: 12px;
     }
 
-    h2 {
-      margin-top: 20px;
-      margin-bottom: 10px;
-      color: #333;
-      text-align: center;
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #d44;
+      text-shadow: 2px 2px 0 #fff, 3px 3px 0 #f88;
+      margin: 8px 0 12px;
+      letter-spacing: 1px;
     }
 
-    #controls {
-      margin-bottom: 10px;
-      text-align: center;
-    }
-    #controls input, #controls button {
-      margin-right: 10px;
-      padding: 5px 10px;
-      font-size: 14px;
-    }
-
-    /* 페인팅 + 3D 영역 */
-    #main {
+    /* ── 메인 레이아웃 ── */
+    #app {
       display: flex;
-      gap: 20px;
+      gap: 16px;
       align-items: flex-start;
       width: 100%;
-      max-width: 1400px;
+      max-width: 1440px;
       flex-wrap: wrap;
       justify-content: center;
     }
 
-    /* 페인팅 캔버스 */
-    #container {
-      flex: 1 1 400px;
-      max-width: 600px;
-      height: auto;
-      aspect-ratio: 1 / 1;
-      border: 2px solid #aaa;
-      background-color: #222;
+    /* ── 도구 패널 ── */
+    #toolPanel {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 4px 18px rgba(0,0,0,.12);
+      padding: 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-width: 140px;
+      flex-shrink: 0;
     }
 
-    /* 3D 미리보기 */
+    .panel-title {
+      font-size: .72rem;
+      font-weight: 700;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      text-align: center;
+    }
+
+    /* 도구 버튼 */
+    .tool-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .tool-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      padding: 8px 4px;
+      background: #f5f5f5;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: .68rem;
+      font-weight: 600;
+      color: #555;
+      transition: all .15s;
+    }
+
+    .tool-btn svg { width: 26px; height: 26px; }
+    .tool-btn:hover   { background: #e8f4ff; border-color: #90c0ff; }
+    .tool-btn.active  { background: #d0e8ff; border-color: #4a90e2; color: #2266bb; }
+
+    /* 색상 팔레트 */
+    #palette {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+    }
+
+    .swatch {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      border: 2px solid rgba(0,0,0,.15);
+      cursor: pointer;
+      transition: transform .1s, box-shadow .1s;
+    }
+    .swatch:hover { transform: scale(1.18); box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+
+    /* 색상 피커 */
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #colorPreview {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 2px solid #ccc;
+      flex-shrink: 0;
+      background: #FF0000;
+    }
+
+    #colorPicker {
+      flex: 1;
+      height: 32px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 2px;
+    }
+
+    /* 슬라이더 */
+    .slider-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: .75rem;
+      color: #666;
+      font-weight: 600;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: #ddd;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #4a90e2;
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0,0,0,.25);
+    }
+
+    /* 액션 버튼 */
+    .btn-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 8px 4px;
+      border: none;
+      border-radius: 10px;
+      font-size: .75rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: filter .15s, transform .1s;
+    }
+    .btn:hover  { filter: brightness(1.07); }
+    .btn:active { transform: scale(.96); }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+
+    .btn-undo   { background: #e0e0e0; color: #444; }
+    .btn-redo   { background: #e0e0e0; color: #444; }
+    .btn-clear  { background: #ffcccc; color: #c00; }
+    .btn-save   {
+      background: linear-gradient(135deg, #43c6ac, #191654);
+      color: #fff;
+      padding: 10px;
+      font-size: .85rem;
+      border-radius: 12px;
+    }
+
+    /* ── 캔버스 영역 ── */
+    #canvasWrapper {
+      position: relative;
+      width: 512px;
+      height: 512px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 6px 24px rgba(0,0,0,.18);
+      flex-shrink: 0;
+    }
+
+    #bgCanvas, #drawCanvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: block;
+    }
+
+    #bgCanvas  { z-index: 1; background: #fff; }
+    #drawCanvas { z-index: 2; }
+
+    /* ── 3D 뷰 ── */
     #threeWrapper {
-      flex: 1 1 500px;
-      max-width: 800px;
-      height: auto;
+      flex: 1 1 480px;
+      max-width: 720px;
+      min-width: 320px;
       aspect-ratio: 1 / 1;
-      position: relative; /* 버튼 오버레이를 위한 부모 */
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 6px 24px rgba(0,0,0,.18);
     }
 
     #threeContainer {
       width: 100%;
       height: 100%;
-      border: 2px solid #aaa;
-      background-color: #222;
+      background: #111;
+      display: block;
+    }
+
+    #threeLabel {
+      position: absolute;
+      top: 10px;
+      left: 14px;
+      color: rgba(255,255,255,.7);
+      font-size: .8rem;
+      font-weight: 700;
+      pointer-events: none;
+      z-index: 5;
     }
 
     #toggleAnimateBtn {
@@ -74,47 +251,158 @@
       right: 10px;
       z-index: 10;
       padding: 6px 12px;
-      font-size: 14px;
+      font-size: .8rem;
       cursor: pointer;
-      background-color: rgba(255, 255, 255, 0.8);
+      background: rgba(255,255,255,.85);
       border: 1px solid #888;
-      border-radius: 4px;
+      border-radius: 8px;
+      font-weight: 600;
     }
 
-    @media (max-width: 900px) {
-      #main {
-        flex-direction: column;
-        gap: 15px;
-      }
-      #container, #threeWrapper {
-        width: 90%;
-        max-width: none;
-        aspect-ratio: auto;
-      }
+    /* ── 토스트 알림 ── */
+    #toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 24px;
+      font-size: .9rem;
+      font-weight: 600;
+      opacity: 0;
+      transition: opacity .3s;
+      pointer-events: none;
+      z-index: 9999;
+      white-space: nowrap;
+    }
+    .toast-error { background: #c00 !important; }
+
+    /* ── 구분선 ── */
+    .divider {
+      border: none;
+      border-top: 1px solid #eee;
+    }
+
+    /* ── 반응형 ── */
+    @media (max-width: 680px) {
+      h1 { font-size: 1.4rem; }
+      #canvasWrapper { width: min(92vw, 512px); height: min(92vw, 512px); }
+      #toolPanel { flex-direction: row; flex-wrap: wrap; min-width: unset; width: 100%; }
+      .tool-grid { grid-template-columns: repeat(4, 1fr); }
+      #palette { grid-template-columns: repeat(8, 1fr); }
     }
   </style>
 </head>
 <body>
-  <h2>UV Painting + 3D Preview</h2>
+  <h1>🎨 어린이 색칠 놀이</h1>
 
-  <div id="controls">
-    <input type="color" id="colorPicker" value="#ff0000" />
-    <input type="range" id="brushSize" min="1" max="30" value="10" />
-    <button id="saveBtn">저장</button>
-  </div>
+  <div id="app">
 
-  <div id="main">
-    <div id="container"></div>
+    <!-- ── 도구 패널 ── -->
+    <div id="toolPanel">
 
-    <div id="threeWrapper">
-      <div id="threeContainer"></div>
-      <button id="toggleAnimateBtn">Rotate ON/OFF</button>
+      <div class="panel-title">도구</div>
+      <div class="tool-grid">
+        <!-- 연필 -->
+        <button class="tool-btn active" data-tool="pencil" title="연필 (P)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+          </svg>
+          연필
+        </button>
+        <!-- 버킷 채우기 -->
+        <button class="tool-btn" data-tool="fill" title="채우기 (F)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 11l-8-8-8.5 8.5a5.5 5.5 0 007.78 7.78L19 11z"/>
+            <path d="M20 23a2 2 0 100-4c-1 0-2 1-2 2s1 2 2 2z"/>
+          </svg>
+          채우기
+        </button>
+        <!-- 지우개 -->
+        <button class="tool-btn" data-tool="eraser" title="지우개 (E)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 20H7L3 16l11-11 7 7-1 8z"/>
+            <path d="M6.5 17.5l5-5"/>
+          </svg>
+          지우개
+        </button>
+        <!-- 스포이드 -->
+        <button class="tool-btn" data-tool="eyedropper" title="색상 추출 (I)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 22l4-4m0 0L15.5 8.5M6 18l9.5-9.5m0 0L18 6.5l-1-1-2.5 2.5m1.5-1.5l3-3a2.83 2.83 0 014 4l-3 3"/>
+          </svg>
+          스포이드
+        </button>
+      </div>
+
+      <hr class="divider"/>
+
+      <!-- 팔레트 -->
+      <div class="panel-title">색상 팔레트</div>
+      <div id="palette"></div>
+
+      <!-- 색상 직접 선택 -->
+      <div class="color-row">
+        <div id="colorPreview"></div>
+        <input type="color" id="colorPicker" value="#FF0000" title="색상 직접 선택" />
+      </div>
+
+      <hr class="divider"/>
+
+      <!-- 브러시 크기 -->
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>브러시 크기</span>
+          <span id="brushSizeLabel">15px</span>
+        </div>
+        <input type="range" id="brushSize" min="1" max="60" value="15" />
+      </div>
+
+      <!-- 불투명도 -->
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>불투명도</span>
+          <span id="opacityLabel">100%</span>
+        </div>
+        <input type="range" id="opacity" min="10" max="100" value="100" />
+      </div>
+
+      <hr class="divider"/>
+
+      <!-- 실행취소 / 다시실행 -->
+      <div class="btn-row">
+        <button class="btn btn-undo" id="undoBtn" title="실행 취소 (Ctrl+Z)">↩ 되돌리기</button>
+        <button class="btn btn-redo" id="redoBtn" title="다시 실행 (Ctrl+Y)">↪ 다시하기</button>
+      </div>
+
+      <!-- 전체 지우기 -->
+      <button class="btn btn-clear" id="clearBtn">🗑 전체 지우기</button>
+
+      <!-- 저장 -->
+      <button class="btn btn-save" id="saveBtn">💾 저장 &amp; 3D 반영</button>
+
     </div>
-  </div>
+    <!-- /toolPanel -->
 
-  <!-- 라이브러리 및 모듈 -->
+    <!-- ── 2D 캔버스 ── -->
+    <div id="canvasWrapper">
+      <canvas id="bgCanvas"></canvas>
+      <canvas id="drawCanvas"></canvas>
+    </div>
+
+    <!-- ── 3D 뷰 ── -->
+    <div id="threeWrapper">
+      <span id="threeLabel">3D 미리보기</span>
+      <div id="threeContainer"></div>
+      <button id="toggleAnimateBtn">🔄 회전 ON/OFF</button>
+    </div>
+
+  </div><!-- /app -->
+
+  <!-- 라이브러리 -->
   <script src="{{ url_for('static', filename='js/konva.min.js') }}"></script>
   <script type="module" src="{{ url_for('static', filename='js/paint.js') }}"></script>
-  <script type="module" src="{{ url_for('static', filename='js/three_loader.js') }}"></script>
 </body>
 </html>

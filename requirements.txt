@@ -1,1 +1,6 @@
 flask
+
+# glb_projection.py 전처리 도구용
+trimesh[easy]
+numpy
+Pillow

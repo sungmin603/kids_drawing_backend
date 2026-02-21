@@ -1,0 +1,3 @@
+# venv 활성화 후
+python tools/glb_projection.py "static/models/Lamborghini_Aventador.glb"
+python tools/glb_projection.py "static/models/Shiba Inu.glb" --axis front --symmetry yz
