@@ -44,3 +44,7 @@ wandb/
 # Cache / Temp
 .cache/
 tmp/
+
+# Project-specific generated/model assets
+algorithm/target_models/
+.ai/

@@ -1,6 +1,15 @@
-flask
+# ── 웹 프레임워크 (Flask → FastAPI) ────────────────────────────────────────
+fastapi              # 비동기 API 프레임워크 (OpenAPI 자동 생성)
+uvicorn[standard]    # ASGI 서버 (websockets, watchfiles 포함)
+python-multipart     # Form/파일 업로드 지원 (FastAPI Form() 필수)
+jinja2               # HTML 템플릿 렌더링
+aiofiles             # 비동기 파일 I/O (StaticFiles 선택 의존)
 
-# glb_projection.py 전처리 도구용
-trimesh[easy]
-numpy
-Pillow
+# ── glb_projection.py 전처리 도구 ──────────────────────────────────────────
+trimesh[easy]        # GLB/GLTF 로드, 메쉬/UV/텍스처 추출
+numpy                # 벡터 연산 (래스터라이저 등)
+Pillow               # 이미지 생성 및 저장
+
+# ── 서버 실행 ──────────────────────────────────────────────────────────────
+# 개발:   uvicorn app:app --reload
+# 프로덕: uvicorn app:app --host 0.0.0.0 --port 8000 --workers 2

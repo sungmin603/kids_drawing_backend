@@ -1,3 +1,122 @@
-# venv 활성화 후
-python tools/glb_projection.py "static/models/Lamborghini_Aventador.glb"
-python tools/glb_projection.py "static/models/Shiba Inu.glb" --axis front --symmetry yz
+# Kids Drawing 3D Painting Backend
+
+2D projection 위에 색칠한 결과를 3D 모델 텍스처에 다시 반영해 보여주는 FastAPI 기반 프로젝트입니다.
+
+## 개요
+- 목적: 2D painting 놀이 결과를 3D 모델에 매핑해 보여주기
+- 서버 환경: 현재 로컬 Windows PC, 이후 AWS 이식 예정
+- 핵심 스택: FastAPI, Three.js, trimesh, Pillow, numpy
+
+## 핵심 규칙
+- 직접 `pip install` 하지 않고 `requirements.txt` 로만 의존성을 관리합니다.
+- 모델 원본과 처리 산출물의 기준 경로는 `algorithm/target_models/` 입니다.
+
+## 현재 폴더 구조
+
+```text
+.ai/
+algorithm/
+  glb_projection.py
+  js/
+  target_models/
+core/
+routers/
+schemas/
+services/
+templates/
+app.py
+main.py
+README
+requirements.txt
+setup.bat
+```
+
+## 실행 방법
+
+```powershell
+venv\Scripts\activate
+uvicorn app:app --reload
+```
+
+접속 주소:
+- App: `http://127.0.0.1:8000`
+- Docs: `http://127.0.0.1:8000/docs`
+
+## 주요 API
+- `GET /api/models`
+- `GET /api/models/{name}`
+- `POST /api/models/process`
+- `POST /api/models/{name}/save_paint`
+- `POST /api/models/{name}/reset_paint`
+
+## 새 모델 추가 방법
+
+### GLB
+- 위치: `algorithm/target_models/`
+- 예시:
+
+```text
+algorithm/target_models/my_dino.glb
+```
+
+### GLTF
+- 위치: `algorithm/target_models/`
+- `.gltf` 와 함께 `.bin`, 텍스처 이미지도 같은 폴더에 둡니다.
+- 예시:
+
+```text
+algorithm/target_models/car.gltf
+algorithm/target_models/car.bin
+algorithm/target_models/car_diffuse.jpg
+```
+
+### 파일명 규칙
+- 영문, 숫자, `_`, `-` 사용 권장
+- 공백/한글은 가능하면 피하기
+- stem 이름이 프로젝트명으로 사용됨
+
+## 모델 처리 결과
+처리 후 아래와 같은 파일이 자동 생성됩니다.
+
+```text
+algorithm/target_models/<model_name>/
+  diffuse_origin.png
+  projection_front.png
+  projection_side.png
+  projection_top.png
+  projection_diffuse_<axis>.png
+  projmap_<axis>.png
+  projection_mapping_<axis>.json
+  mapping_<axis>.json
+  painted_<axis>.png
+  canvas_state_<axis>.png
+```
+
+## 처리/표시 흐름
+1. 사용자가 모델을 선택합니다.
+2. `POST /api/models/process` 로 projection 자산을 생성합니다.
+3. `algorithm/glb_projection.py` 가 axis별 projection 관련 파일을 생성합니다.
+4. `GET /api/models/{name}` 으로 처리 결과를 불러옵니다.
+5. UI가 2D projection/reference/projmap/mapping 데이터를 로드합니다.
+6. 사용자가 색칠합니다.
+7. 저장 시 2D 그림을 texture로 remap 하여 `painted_<axis>.png` 를 생성합니다.
+8. 3D 뷰어가 새 texture를 적용합니다.
+
+## 중요한 점
+- `projection_{axis}.png` 는 2D에서 보이는 참고/표시용 이미지입니다.
+- 실제 3D texture 반영 기준은 아래 파일입니다.
+  - `projmap_{axis}.png`
+  - `projection_mapping_{axis}.json`
+
+## GLTF 관련 주의사항
+- `.gltf` 는 외부 파일 참조 구조입니다.
+- `images[].uri`, `buffers[].uri` 와 실제 파일명이 일치해야 합니다.
+- `.bin` 또는 텍스처 이미지가 없으면 처리/로딩이 실패할 수 있습니다.
+
+## 상용화 전 체크 포인트
+- 사용자 계정/작품 저장
+- 관리자 모델 등록/검수
+- 비동기 처리 job
+- AWS 배포 구조
+- 로그/관측성
+- 인코딩 정리
